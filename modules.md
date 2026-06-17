@@ -103,22 +103,22 @@ project_root/
   - **Concepts:** Image statistics, Feature distributions
   - **Deliverable:** Image analysis notebook
 
-### [ ] PHASE 2: CNN Fundamentals
+### [x] PHASE 2: CNN Fundamentals
 **Goal:** Understand how CNNs see images.
 
-- [ ] **Module 2.1: CNN Architecture Study**
+- [x] **Module 2.1: CNN Architecture Study**
   - **Tasks:** Study Convolution, Filters, Pooling, ReLU.
   - **Files:** `reports/cnn_fundamentals.md`
   - **Concepts:** Feature extraction, Local receptive fields
   - **Deliverable:** CNN architecture documentation
 
-- [ ] **Module 2.2: Feature Map Visualization**
+- [x] **Module 2.2: Feature Map Visualization**
   - **Tasks:** Pass images through CNN. Visualize Early Layer Features, Mid Layer Features, Deep Features.
   - **Files:** `src/models/vgg_feature_extractor.py`, `notebooks/02_feature_maps.ipynb`
   - **Concepts:** Feature maps, Hierarchical representations
   - **Deliverable:** Feature map visualizations
 
-- [ ] **Module 2.3: Transfer Learning**
+- [x] **Module 2.3: Transfer Learning**
   - **Tasks:** Use pretrained VGG19. Extract image embeddings.
   - **Files:** `src/models/vgg_feature_extractor.py`
   - **Concepts:** Transfer learning, ImageNet pretrained models
