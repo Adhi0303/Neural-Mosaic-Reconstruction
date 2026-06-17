@@ -124,16 +124,16 @@ project_root/
   - **Concepts:** Transfer learning, ImageNet pretrained models
   - **Deliverable:** Image embedding extractor
 
-### [ ] PHASE 3: Content Representation
+### [x] PHASE 3: Content Representation
 **Goal:** Teach system what the user image contains.
 
-- [ ] **Module 3.1: Content Encoder**
+- [x] **Module 3.1: Content Encoder**
   - **Tasks:** Extract Face Structure, Object Layout, Semantic Information.
   - **Files:** `src/models/content_encoder.py`
   - **Concepts:** Content features, Deep feature representations
   - **Deliverable:** Content feature extractor
 
-- [ ] **Module 3.2: Content Loss**
+- [x] **Module 3.2: Content Loss**
   - **Tasks:** Measure similarity between Generated Image and Original Image.
   - **Files:** `src/training/losses.py`
   - **Concepts:** Euclidean distance, Content loss
