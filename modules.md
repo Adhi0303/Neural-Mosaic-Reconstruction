@@ -213,6 +213,16 @@ project_root/
   - **Tasks:** Extract, rank, and reassign pixels 1-to-1 based on luminance.
   - **Files:** `src/models/pixel_sorter.py`
   - **Concepts:** 1D Flattening, Luminance Sorting, Exact Histogram Specification.
+
+---
+
+### [x] PHASE 9.1: 1-to-1 Block Sorting
+**Goal:** Preserve local color clusters by mapping chunks instead of single pixels, solving the "muddy sand" effect.
+
+- [x] **Module 9.2: Block Sorter Engine**
+  - **Tasks:** Chop images into 20x20 blocks, sort by average luminance, map 1-to-1.
+  - **Files:** `src/models/block_sorter.py`
+  - **Concepts:** Spatial Preservation, Block Average Luminance.
   - **Deliverable:** Working Mosaic Reconstructor
 **Goal:** Deploy project.
 
