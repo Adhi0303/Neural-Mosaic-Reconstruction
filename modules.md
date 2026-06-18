@@ -195,6 +195,15 @@ project_root/
   - **Deliverable:** Comparison interface
 
 ### [ ] PHASE 7: Web Application
+
+### [ ] PHASE 8: Patch-Based Mosaic Reconstruction
+**Goal:** Physically reconstruct the content image using patches of the style image.
+
+- [ ] **Module 8.1: Mosaic Engine**
+  - **Tasks:** Build patch extraction, KD-Tree indexing, and reconstruction algorithm.
+  - **Files:** `src/models/mosaic_engine.py`
+  - **Concepts:** KNN, KD-Trees, Sliding Window
+  - **Deliverable:** Working Mosaic Reconstructor
 **Goal:** Deploy project.
 
 - [ ] **Module 7.1: Backend API**
