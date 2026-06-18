@@ -139,22 +139,22 @@ project_root/
   - **Concepts:** Euclidean distance, Content loss
   - **Deliverable:** Content loss module
 
-### [ ] PHASE 4: Style Representation
+### [x] PHASE 4: Style Representation
 **Goal:** Teach system artistic characteristics.
 
-- [ ] **Module 4.1: Style Encoder**
+- [x] **Module 4.1: Style Encoder**
   - **Tasks:** Extract Colors, Textures, Patterns.
   - **Files:** `src/models/style_encoder.py`
   - **Concepts:** Style representations
   - **Deliverable:** Style feature extractor
 
-- [ ] **Module 4.2: Gram Matrix**
+- [x] **Module 4.2: Gram Matrix**
   - **Tasks:** Compute style statistics.
   - **Files:** `src/models/style_encoder.py`
   - **Concepts:** Feature correlations, Style encoding
   - **Deliverable:** Style representation module
 
-- [ ] **Module 4.3: Style Loss**
+- [x] **Module 4.3: Style Loss**
   - **Tasks:** Measure style similarity.
   - **Files:** `src/training/losses.py`
   - **Concepts:** Style loss, Optimization objective
