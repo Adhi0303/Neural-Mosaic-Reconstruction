@@ -160,22 +160,22 @@ project_root/
   - **Concepts:** Style loss, Optimization objective
   - **Deliverable:** Style loss implementation
 
-### [ ] PHASE 5: Neural Style Transfer Engine
+### [x] PHASE 5: Neural Style Transfer Engine
 **Goal:** Combine content and style.
 
-- [ ] **Module 5.1: Optimization Engine**
+- [x] **Module 5.1: Optimization Engine**
   - **Tasks:** Generate image iteratively.
   - **Files:** `src/training/optimizer.py`
   - **Concepts:** Gradient descent, Backpropagation
   - **Deliverable:** Optimization pipeline
 
-- [ ] **Module 5.2: Neural Style Transfer**
+- [x] **Module 5.2: Neural Style Transfer**
   - **Tasks:** Implement full NST pipeline.
   - **Files:** `src/models/neural_style_transfer.py`
   - **Concepts:** Content preservation, Style transfer
   - **Deliverable:** Working style transfer model
 
-- [ ] **Module 5.3: Training Script**
+- [x] **Module 5.3: Training Script**
   - **Tasks:** Run complete pipeline.
   - **Files:** `src/training/train_style_transfer.py`
   - **Deliverable:** End-to-end generation
