@@ -194,18 +194,29 @@ project_root/
   - **Files:** `src/evaluation/visualizer.py`
   - **Deliverable:** Comparison interface
 
-### [ ] PHASE 7: Web Application
 
-### [ ] PHASE 8: Patch-Based Mosaic Reconstruction
-**Goal:** Physically reconstruct the content image using patches of the style image.
 
-- [ ] **Module 8.1: Mosaic Engine**
-  - **Tasks:** Build patch extraction, KD-Tree indexing, and reconstruction algorithm.
+### [x] PHASE 8: Patch-Based Mosaic Reconstruction
+**Goal:** Mathematically sort chunks of the style image to reconstruct the content image.
+
+- [x] **Module 8.1: Mosaic Engine**
+  - **Tasks:** Build `KD-Tree` matching.
   - **Files:** `src/models/mosaic_engine.py`
-  - **Concepts:** KNN, KD-Trees, Sliding Window
+  - **Concepts:** Data Science, Nearest Neighbors, Luminance Matching.
+
+---
+
+### [x] PHASE 9: Exact Pixel Sorting (Obamify Generalization)
+**Goal:** Sort 100% of the individual pixels of the source image to form the target image structure.
+
+- [x] **Module 9.1: Pixel Sorter Engine**
+  - **Tasks:** Extract, rank, and reassign pixels 1-to-1 based on luminance.
+  - **Files:** `src/models/pixel_sorter.py`
+  - **Concepts:** 1D Flattening, Luminance Sorting, Exact Histogram Specification.
   - **Deliverable:** Working Mosaic Reconstructor
 **Goal:** Deploy project.
 
+### [ ] PHASE 7: Web Application
 - [ ] **Module 7.1: Backend API**
   - **Tasks:** Create image generation endpoint.
   - **Files:** `src/api/app.py`
