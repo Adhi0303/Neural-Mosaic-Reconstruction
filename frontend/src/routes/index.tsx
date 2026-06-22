@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState, useRef, useCallback } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import referenceArt from "@/assets/reference-art.jpg";
 import mosaicResult from "@/assets/mosaic-result.jpg";
@@ -257,43 +257,61 @@ function Workspace() {
   const [engine, setEngine] = useState("block_sorter");
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [artworkTitle, setArtworkTitle] = useState<string | null>(null);
+  const [isNaming, setIsNaming] = useState(false);
+  const [animPhase, setAnimPhase] = useState<"idle" | "generating" | "revealing">("idle");
+
+  // Fire /name as soon as both images are uploaded
+  useEffect(() => {
+    if (!contentFile || !styleFile) return;
+    setIsNaming(true);
+    setArtworkTitle(null);
+    const form = new FormData();
+    form.append("content_image", contentFile);
+    form.append("style_image", styleFile);
+    fetch("http://localhost:8000/name", { method: "POST", body: form })
+      .then(r => r.json())
+      .then(d => setArtworkTitle(d.title))
+      .catch(() => setArtworkTitle("Untitled Composition"))
+      .finally(() => setIsNaming(false));
+  }, [contentFile, styleFile]);
 
   const handleGenerate = async () => {
-    if (!contentFile || !styleFile) {
-      alert("Please upload both a subject and a reference world.");
-      return;
-    }
-
+    if (!contentFile || !styleFile) return;
     setIsGenerating(true);
+    setAnimPhase("generating");
+    setResultImage(null);
+
     const formData = new FormData();
-    formData.append('content_image', contentFile);
-    formData.append('style_image', styleFile);
-    formData.append('engine', engine);
+    formData.append("content_image", contentFile);
+    formData.append("style_image", styleFile);
+    formData.append("engine", engine);
 
     try {
-      const response = await fetch('http://localhost:8000/generate', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/generate", {
+        method: "POST",
         body: formData,
       });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
+      if (!response.ok) throw new Error("Network response was not ok");
       const blob = await response.blob();
       setResultImage(URL.createObjectURL(blob));
-    } catch (error) {
-      console.error('Error generating image:', error);
-      alert('Failed to generate image. Ensure the backend is running.');
+      setAnimPhase("revealing");
+    } catch {
+      alert("Failed to generate image. Ensure the backend is running.");
+      setAnimPhase("idle");
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const plateNumber = useRef(Math.floor(Math.random() * 900) + 100);
+
   return (
     <section id="workspace" className="relative bg-museum text-paper">
-      <div className="mx-auto max-w-[1400px] px-6 py-28 md:px-12 md:py-40">
-        <header className="mb-16 flex flex-wrap items-end justify-between gap-8 border-b border-paper/20 pb-10">
+      <div className="mx-auto max-w-[1400px] px-6 py-20 md:px-12 md:py-28">
+
+        {/* Header */}
+        <header className="mb-14 flex flex-wrap items-end justify-between gap-8 border-b border-paper/20 pb-10">
           <div>
             <div className="small-caps text-paper/60">Chapter II</div>
             <h2 className="display mt-4 text-5xl text-paper md:text-7xl">
@@ -301,121 +319,177 @@ function Workspace() {
             </h2>
           </div>
           <p className="max-w-sm text-paper/70">
-            Two frames await. Place a subject on the left, a visual world on the right, and ask the atelier to begin.
+            Two frames await. Place a subject on the left, a visual world on the right,
+            and ask the atelier to begin.
           </p>
         </header>
 
-        <div className="mb-10 flex justify-center">
-          <div className="flex flex-col items-center">
-            <label className="small-caps text-paper/55 mb-2">Technique (Engine)</label>
-            <select 
-              value={engine} 
-              onChange={(e) => setEngine(e.target.value)}
-              className="bg-museum border border-paper/30 text-paper px-4 py-2 small-caps outline-none focus:border-terracotta"
+        {/* Main two-column layout */}
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:items-start">
+
+          {/* LEFT — stacked inputs + controls */}
+          <div className="flex flex-col gap-6 md:col-span-4">
+
+            <FrameSlot
+              label="I · The Subject"
+              caption="Original Portrait"
+              image={contentPreview || heroPortrait}
+              onFileSelect={(file, preview) => { setContentFile(file); setContentPreview(preview); }}
+            />
+
+            <FrameSlot
+              label="II · The World"
+              caption="Reference Artwork"
+              image={stylePreview || referenceArt}
+              onFileSelect={(file, preview) => { setStyleFile(file); setStylePreview(preview); }}
+            />
+
+            {/* Engine selector */}
+            <div className="border-t border-paper/15 pt-5">
+              <div className="small-caps mb-2 text-paper/50">Technique</div>
+              <select
+                value={engine}
+                onChange={e => setEngine(e.target.value)}
+                className="w-full bg-transparent border border-paper/25 text-paper px-3 py-2 small-caps outline-none focus:border-terracotta transition-colors"
+              >
+                <option value="mosaic">Patch Mosaic (KD-Tree)</option>
+                <option value="pixel_sorter">Exact Pixel Sorter</option>
+                <option value="block_sorter">1-to-1 Block Sorter</option>
+                <option value="neural">Neural Style Transfer</option>
+              </select>
+            </div>
+
+            {/* Generate button */}
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isGenerating || !contentFile || !styleFile}
+              className="w-full inline-flex items-center justify-center gap-4 border border-paper/30 bg-terracotta px-8 py-4 text-paper transition-all hover:-translate-y-0.5 hover:bg-[color:var(--terracotta-glow)] hover:shadow-[0_20px_40px_-16px_rgba(117,68,55,0.7)] disabled:opacity-40 disabled:pointer-events-none"
             >
-              <option value="mosaic">Patch Mosaic (KD-Tree)</option>
-              <option value="pixel_sorter">Exact Pixel Sorter</option>
-              <option value="block_sorter">1-to-1 Block Sorter</option>
-              <option value="neural">Neural Style Transfer</option>
-            </select>
+              <span className="small-caps">
+                {isGenerating ? "Synthesizing..." : "Begin Reconstruction"}
+              </span>
+              {!isGenerating && <span aria-hidden>→</span>}
+            </button>
+          </div>
+
+          {/* RIGHT — result frame */}
+          <div className="md:col-span-8 flex flex-col">
+            <div className="small-caps mb-4 text-paper/50">III · The Result</div>
+
+            <div className="frame relative" style={{ background: "linear-gradient(135deg,#2e3d50,#1a2230)" }}>
+              {/* Idle state — placeholder */}
+              {animPhase === "idle" && (
+                <div className="frame-inner flex flex-col items-center justify-center gap-4 min-h-[420px]">
+                  <div className="display text-4xl italic text-paper/20">—</div>
+                  <div className="small-caps text-paper/30">Awaiting the restorer's hand</div>
+                </div>
+              )}
+
+              {/* Generating — tile shimmer animation */}
+              {animPhase === "generating" && (
+                <div className="frame-inner min-h-[420px] relative overflow-hidden">
+                  {contentPreview && (
+                    <img
+                      src={contentPreview}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ filter: "saturate(0) brightness(0.35) blur(1px)" }}
+                    />
+                  )}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      backgroundImage: "linear-gradient(0deg, rgba(117,68,55,0.0) 0%, rgba(117,68,55,0.18) 50%, rgba(117,68,55,0.0) 100%)",
+                      backgroundSize: "100% 60px",
+                      animation: "scanline 1.6s linear infinite",
+                    }}
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-5">
+                    <div className="flex gap-1.5">
+                      {[0,1,2,3,4].map(i => (
+                        <span
+                          key={i}
+                          className="block w-2 h-2 bg-terracotta rounded-full"
+                          style={{ animation: `dot-bounce 1.2s ${i * 0.18}s ease-in-out infinite` }}
+                        />
+                      ))}
+                    </div>
+                    <div className="small-caps text-paper/60">The machine is dreaming...</div>
+                    <div className="display italic text-paper/30 text-lg">
+                      {isNaming ? "Composing a title..." : (artworkTitle ?? "")}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Result revealed */}
+              {animPhase === "revealing" && resultImage && (
+                <img
+                  src={resultImage}
+                  alt="Generated artwork"
+                  className="frame-inner"
+                  style={{ animation: "reveal-in 1.2s cubic-bezier(.2,.6,.2,1) both" }}
+                />
+              )}
+            </div>
+
+            {/* Title plate below result */}
+            <div className="mt-5 flex items-baseline justify-between border-t border-paper/15 pt-4">
+              <span className="small-caps text-paper/40">No. {plateNumber.current}</span>
+              <span
+                className="display italic text-lg text-paper/85 text-center flex-1 px-4 transition-opacity duration-700"
+                style={{ opacity: artworkTitle ? 1 : 0.3 }}
+              >
+                {isNaming
+                  ? "The atelier is composing a title..."
+                  : (artworkTitle ?? "Upload both images to receive a title")}
+              </span>
+              <span className="small-caps text-paper/40">c. MMXXV</span>
+            </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-12">
-          <FrameSlot 
-            label="The Subject" 
-            caption="Original Portrait" 
-            image={contentPreview || heroPortrait} 
-            side="left" 
-            onFileSelect={(file, preview) => { setContentFile(file); setContentPreview(preview); }} 
-          />
-          <div className="hidden md:col-span-2 md:flex md:h-full md:items-center md:justify-center">
-            <div className="display text-5xl text-paper/40">×</div>
-          </div>
-          <FrameSlot 
-            label="The World" 
-            caption="Reference Artwork" 
-            image={stylePreview || referenceArt} 
-            side="right" 
-            onFileSelect={(file, preview) => { setStyleFile(file); setStylePreview(preview); }} 
-          />
-        </div>
-
-        <div className="mt-16 flex flex-col items-center gap-6">
-          <div className="small-caps text-paper/55">Awaiting the restorer's hand</div>
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={isGenerating || !contentFile || !styleFile}
-            className="group relative inline-flex items-center gap-4 border border-paper/30 bg-terracotta px-12 py-5 text-paper transition-all hover:-translate-y-0.5 hover:bg-[color:var(--terracotta-glow)] hover:shadow-[0_30px_60px_-20px_rgba(117,68,55,0.7)] disabled:opacity-50 disabled:pointer-events-none"
-          >
-            <span className="small-caps">{isGenerating ? "Synthesizing..." : "Begin Reconstruction"}</span>
-            {!isGenerating && <span aria-hidden className="text-lg">→</span>}
-          </button>
-        </div>
-
-        <figure className="mx-auto mt-24 max-w-[760px]">
-          <div className="small-caps mb-6 text-center text-paper/55">The Result · Centrepiece of the Exhibition</div>
-          <div className="frame" style={{ background: "linear-gradient(135deg,#3a4a60,#1c2536)" }}>
-            {isGenerating ? (
-               <div className="frame-inner flex items-center justify-center opacity-70">
-                 <div className="animate-pulse display text-2xl text-paper/80 italic">The machine is dreaming...</div>
-               </div>
-            ) : (
-               <img
-                 src={resultImage || mosaicResult}
-                 alt="Portrait reconstructed as a mosaic of other images"
-                 width={1024}
-                 height={1280}
-                 loading="lazy"
-                 className="frame-inner"
-               />
-            )}
-          </div>
-          <figcaption className="mt-6 flex items-baseline justify-between small-caps text-paper/55">
-            <span>No. 001</span>
-            <span className="display italic normal-case tracking-normal text-base text-paper/80">
-              “A Lady, Reassembled”
-            </span>
-            <span>2025</span>
-          </figcaption>
-        </figure>
       </div>
     </section>
   );
 }
 
-function FrameSlot({ label, caption, image, side, onFileSelect }: { label: string; caption: string; image: string; side: "left" | "right", onFileSelect?: (file: File, preview: string) => void }) {
+function FrameSlot({
+  label, caption, image, onFileSelect
+}: {
+  label: string;
+  caption: string;
+  image: string;
+  onFileSelect?: (file: File, preview: string) => void;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleContainerClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && onFileSelect) {
-      const previewUrl = URL.createObjectURL(file);
-      onFileSelect(file, previewUrl);
+      onFileSelect(file, URL.createObjectURL(file));
     }
   };
 
   return (
-    <figure className={`md:col-span-5 ${side === "right" ? "md:translate-y-10" : ""}`}>
-      <div className="small-caps mb-4 text-paper/55">{label}</div>
-      <div className="frame cursor-pointer transition-transform hover:scale-[1.02]" onClick={handleContainerClick}>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-          className="hidden" 
-          accept="image/*" 
+    <figure>
+      <div className="small-caps mb-2 text-paper/50">{label}</div>
+      <div
+        className="frame cursor-pointer transition-transform hover:scale-[1.015]"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/*"
         />
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <img src={image} alt={caption} loading="lazy" className="frame-inner" />
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-25 mix-blend-multiply"
+            className="pointer-events-none absolute inset-0 opacity-20 mix-blend-multiply"
             style={{ backgroundImage: "var(--paper-grain)" }}
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
@@ -423,9 +497,14 @@ function FrameSlot({ label, caption, image, side, onFileSelect }: { label: strin
           </div>
         </div>
       </div>
-      <figcaption className="mt-5 flex items-baseline justify-between">
-        <span className="display italic text-lg text-paper/85">{caption}</span>
-        <button onClick={handleContainerClick} className="small-caps text-paper/45 hover:text-paper transition-colors">Upload</button>
+      <figcaption className="mt-2 flex items-baseline justify-between">
+        <span className="display italic text-sm text-paper/70">{caption}</span>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="small-caps text-paper/35 hover:text-paper transition-colors"
+        >
+          Upload
+        </button>
       </figcaption>
     </figure>
   );

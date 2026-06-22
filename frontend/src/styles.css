@@ -189,6 +189,19 @@
   0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
   100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.5) rotate(var(--rot, 0deg)); }
 }
+@keyframes scanline {
+  0% { background-position: 0 -60px; }
+  100% { background-position: 0 100%; }
+}
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-8px); opacity: 1; }
+}
+@keyframes reveal-in {
+  0% { opacity: 0; filter: saturate(0) blur(12px); transform: scale(1.03); }
+  60% { filter: saturate(0.4) blur(3px); }
+  100% { opacity: 1; filter: saturate(0.95) contrast(1.02) blur(0px); transform: scale(1); }
+}
 @keyframes slow-fade {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
