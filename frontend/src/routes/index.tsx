@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useCallback } from "react";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import referenceArt from "@/assets/reference-art.jpg";
 import mosaicResult from "@/assets/mosaic-result.jpg";
@@ -60,7 +60,7 @@ function TopBar() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-16 px-6 py-20 md:grid-cols-12 md:px-12 md:py-28">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-16 px-6 py-8 md:grid-cols-12 md:px-12 md:py-12">
         <div className="md:col-span-6 md:pr-8">
           <div className="mb-10 flex items-center gap-4 small-caps text-foreground/60">
             <span className="h-px w-12 bg-foreground/40" />
@@ -107,32 +107,51 @@ function Hero() {
 }
 
 function MosaicAssembly() {
+  const [hovered, setHovered] = useState(false);
+  const [epoch, setEpoch] = useState(0);
+
   const tiles = useMemo(() => {
     const out: { tx: number; ty: number; delay: number; size: number; left: number; top: number; rot: number }[] = [];
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 36; i++) {
       out.push({
-        tx: (Math.random() - 0.5) * 400,
-        ty: (Math.random() - 0.5) * 400,
-        delay: Math.random() * 1.6,
-        size: 18 + Math.random() * 38,
+        tx: (Math.random() - 0.5) * 520,
+        ty: (Math.random() - 0.5) * 520,
+        delay: Math.random() * 0.5,
+        size: 16 + Math.random() * 40,
         left: Math.random() * 100,
         top: Math.random() * 100,
-        rot: (Math.random() - 0.5) * 30,
+        rot: (Math.random() - 0.5) * 50,
       });
     }
     return out;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [epoch]);
+
+  const handleMouseEnter = useCallback(() => {
+    setEpoch(e => e + 1);
+    setHovered(true);
   }, []);
+  const handleMouseLeave = useCallback(() => setHovered(false), []);
 
   return (
     <figure className="relative mx-auto aspect-[4/5] w-full max-w-[520px]">
-      <div className="frame absolute inset-0">
+      <div
+        className="frame absolute inset-0 cursor-crosshair"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className="relative h-full w-full overflow-hidden">
           <img
             src={heroPortrait}
             alt="A Renaissance portrait dissolving into mosaic fragments"
             width={1024}
             height={1280}
-            className="frame-inner"
+            className="frame-inner transition-all duration-700"
+            style={{
+              filter: hovered
+                ? "saturate(0.3) blur(2px) contrast(1.05)"
+                : "saturate(0.95) contrast(1.02)",
+            }}
           />
           <div
             aria-hidden
@@ -141,7 +160,7 @@ function MosaicAssembly() {
           />
           {tiles.map((t, i) => (
             <span
-              key={i}
+              key={`${epoch}-${i}`}
               aria-hidden
               className="absolute"
               style={{
@@ -152,11 +171,13 @@ function MosaicAssembly() {
                 backgroundImage: `url(${heroPortrait})`,
                 backgroundSize: "520px auto",
                 backgroundPosition: `${-t.left * 4}px ${-t.top * 5}px`,
-                transform: `rotate(${t.rot}deg)`,
-                boxShadow: "0 4px 10px -4px rgba(0,0,0,0.4)",
-                animation: `mosaic-in 2.6s ${t.delay}s cubic-bezier(.2,.6,.2,1) both`,
+                boxShadow: "0 4px 14px -4px rgba(0,0,0,0.55)",
                 ["--tx" as never]: `${t.tx}px`,
                 ["--ty" as never]: `${t.ty}px`,
+                ["--rot" as never]: `${t.rot}deg`,
+                animation: hovered
+                  ? `mosaic-scatter 0.65s ${t.delay * 0.35}s cubic-bezier(.4,0,.6,1) both`
+                  : `mosaic-in 2.6s ${t.delay}s cubic-bezier(.2,.6,.2,1) both`,
               }}
             />
           ))}
