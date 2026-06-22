@@ -1,0 +1,195 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sand: var(--sand);
+  --color-sage: var(--sage);
+  --color-terracotta: var(--terracotta);
+  --color-museum: var(--museum);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+:root {
+  /* Palette */
+  --sand: #d3c7ad;
+  --paper: #e8dec6;
+  --sage: #6b6751;
+  --terracotta: #754437;
+  --terracotta-glow: #9a5a48;
+  --museum: #28374a;
+  --ink: #1c1a14;
+
+  --background: var(--sand);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--terracotta);
+  --primary-foreground: #f4ecd8;
+  --secondary: var(--sage);
+  --secondary-foreground: #f4ecd8;
+  --muted: #c5b896;
+  --muted-foreground: #4a4636;
+  --accent: var(--terracotta);
+  --accent-foreground: #f4ecd8;
+  --destructive: #8a3a2a;
+  --destructive-foreground: #f4ecd8;
+  --border: rgba(40, 55, 74, 0.18);
+  --input: rgba(40, 55, 74, 0.2);
+  --ring: var(--terracotta);
+  --radius: 4px;
+
+  /* Textures */
+  --paper-grain:
+    radial-gradient(circle at 12% 18%, rgba(40, 55, 74, 0.05) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 62%, rgba(117, 68, 55, 0.06) 0 1px, transparent 2px),
+    radial-gradient(circle at 42% 88%, rgba(28, 26, 20, 0.05) 0 1px, transparent 2px);
+  --canvas-noise:
+    repeating-linear-gradient(0deg, rgba(28, 26, 20, 0.025) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(28, 26, 20, 0.02) 0 1px, transparent 1px 4px);
+}
+
+.dark {
+  --background: var(--museum);
+  --foreground: var(--paper);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "liga";
+    background-image: var(--paper-grain), var(--canvas-noise);
+    background-size: 220px 220px, 220px 220px, 220px 220px, auto, auto;
+  }
+  h1, h2, h3, h4, .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: var(--terracotta);
+    color: var(--paper);
+  }
+}
+
+@utility paper-texture {
+  background-color: var(--paper);
+  background-image: var(--paper-grain), var(--canvas-noise);
+}
+
+@utility canvas-texture {
+  background-image: var(--canvas-noise);
+}
+
+@utility frame {
+  padding: 14px;
+  background: linear-gradient(135deg, #e9ddbe, #c8b896);
+  box-shadow:
+    inset 0 0 0 1px rgba(28, 26, 20, 0.15),
+    inset 0 0 0 8px var(--paper),
+    inset 0 0 0 9px rgba(28, 26, 20, 0.25),
+    0 30px 60px -30px rgba(28, 26, 20, 0.45),
+    0 8px 20px -10px rgba(28, 26, 20, 0.25);
+}
+
+@utility frame-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.95) contrast(1.02);
+}
+
+@utility hairline {
+  position: relative;
+}
+@utility hairline-top {
+  border-top: 1px solid rgba(28, 26, 20, 0.2);
+}
+
+@utility small-caps {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+@utility museum-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 2.4rem;
+  background: var(--terracotta);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 0.78rem;
+  border: 1px solid rgba(28, 26, 20, 0.3);
+  box-shadow:
+    inset 0 0 0 1px rgba(244, 236, 216, 0.15),
+    0 14px 30px -14px rgba(117, 68, 55, 0.55);
+  transition: transform 280ms ease, background 280ms ease, box-shadow 280ms ease;
+  cursor: pointer;
+}
+@utility museum-button-hover {
+  background: var(--terracotta-glow);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 0 1px rgba(244, 236, 216, 0.2),
+    0 22px 40px -16px rgba(117, 68, 55, 0.7);
+}
+
+@keyframes mosaic-in {
+  0% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.6); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes slow-fade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
